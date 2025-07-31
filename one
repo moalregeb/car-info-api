@@ -1,6 +1,5 @@
 git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
+git add .
+git commit -m "initial commit"
 git remote add origin https://github.com/moalregeb/car-info-api.git
 git push -u origin main

@@ -12,7 +12,8 @@ import {
   FiStar,
   FiEye,
   FiHeart,
-  FiFilter
+  FiFilter,
+  FiTrendingDown
 } from 'react-icons/fi';
 import { carBrands } from '../data/carBrands';
 import { carModels } from '../data/carModels';
@@ -81,16 +82,59 @@ const HomePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-                اكتشف سيارتك
-                <span className="block text-gradient bg-gradient-to-r from-quartz-500 to-quartz-600 bg-clip-text text-transparent">
-                  المثالية
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                منصة شاملة لبيع وشراء السيارات في الأردن مع معلومات دقيقة وحاسبة تكاليف محدثة لعام 2025
-              </p>
-            </motion.div>
+              <motion.h1 
+                className="text-5xl font-bold text-gray-900 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                اكتشف سيارة أحلامك مع 
+                <span className="text-gradient"> Quartz</span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                المرجع الأول للسيارات في الأردن - أسعار دقيقة، معلومات شاملة، وحاسبة تكاليف محدثة مع التخفيضات الضريبية الجديدة لعام 2025
+              </motion.p>
+
+              {/* New Tax Reduction Banner */}
+              <motion.div 
+                className="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-2xl p-6 mb-8 max-w-4xl mx-auto shadow-xl"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="flex items-center justify-center mb-4">
+                  <FiTrendingDown className="w-8 h-8 ml-3" />
+                  <h2 className="text-2xl font-bold">🎉 تخفيضات ضريبية تاريخية - 2025</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div className="bg-white/20 rounded-lg p-4">
+                    <div className="text-3xl font-bold mb-2">28%</div>
+                    <div className="text-sm">توفير على السيارات العادية</div>
+                    <div className="text-xs opacity-75">من 71% إلى 51%</div>
+                  </div>
+                  <div className="bg-white/20 rounded-lg p-4">
+                    <div className="text-3xl font-bold mb-2">35%</div>
+                    <div className="text-sm">توفير على الهايبرد</div>
+                    <div className="text-xs opacity-75">من 60% إلى 39%</div>
+                  </div>
+                  <div className="bg-white/20 rounded-lg p-4">
+                    <div className="text-3xl font-bold mb-2">27%</div>
+                    <div className="text-sm">ضريبة موحدة للكهربائية</div>
+                    <div className="text-xs opacity-75">بدلاً من معدلات متدرجة</div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 text-sm opacity-90">
+                  ✅ سارية المفعول من 29 يونيو 2025 | مصدر: قرار مجلس الوزراء الأردني
+                </div>
+              </motion.div>
 
             {/* Advanced Search Box */}
             <motion.div
@@ -180,9 +224,34 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Statistics Section */}
+      {/* Statistics Section - Updated with new savings info */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <div className="text-center">
+              <div className="text-3xl font-bold text-quartz-600 mb-2">37+</div>
+              <div className="text-gray-600">علامة تجارية</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-quartz-600 mb-2">500+</div>
+              <div className="text-gray-600">موديل سيارة</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">51%</div>
+              <div className="text-gray-600">ضريبة جديدة للعادية</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">27%</div>
+              <div className="text-gray-600">ضريبة الكهربائية</div>
+            </div>
+          </motion.div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <motion.div
@@ -241,6 +310,19 @@ const HomePage: React.FC = () => {
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2">
                       <FiHeart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer transition-colors" />
                     </div>
+                    
+                    {/* New Savings Badge */}
+                    {(() => {
+                      const totalCost = calculateTotalCost(car);
+                      if (totalCost.savingsFrom2024 > 0) {
+                        return (
+                          <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            وفر ${totalCost.savingsFrom2024.toLocaleString()}
+                          </div>
+                        );
+                      }
+                    })()}
+                    
                     <div className="absolute bottom-4 left-4 bg-quartz-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                       {car.category === CarCategory.ELECTRIC ? 'كهربائي' : 'جديد'}
                     </div>
@@ -282,7 +364,7 @@ const HomePage: React.FC = () => {
                             ${car.prices.basePrice.toLocaleString()}
                           </div>
                           <div className="text-sm text-gray-500">
-                            + ${car.customsCosts.totalCustomsCost.toLocaleString()} جمرك
+                            + ${car.customsCosts.totalCustomsCost.toLocaleString()} جمرك محدث
                           </div>
                         </div>
                         <div className="text-left">
@@ -290,6 +372,24 @@ const HomePage: React.FC = () => {
                             {Math.round((car.prices.basePrice + car.customsCosts.totalCustomsCost) * 0.71).toLocaleString()} د.أ
                           </div>
                           <div className="text-xs text-gray-500">السعر الإجمالي</div>
+                        </div>
+                      </div>
+                      
+                      {/* New Tax Rate Display */}
+                      <div className="bg-green-50 rounded-lg p-3 mb-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-green-700">معدل الضريبة الجديد 2025:</span>
+                          <span className="font-bold text-green-800">
+                            {(() => {
+                              const variant = car.variants[0];
+                              if (variant.fuelType === FuelType.ELECTRIC) return '27%';
+                              if (variant.fuelType === FuelType.HYBRID) return '39%';
+                              return '51%';
+                            })()}
+                          </span>
+                        </div>
+                        <div className="text-xs text-green-600 mt-1">
+                          توفير كبير مقارنة بالمعدلات السابقة
                         </div>
                       </div>
 

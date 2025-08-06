@@ -1,4 +1,16 @@
 import { CarModel, CarCategory, BodyType, FuelType, TransmissionType, FeatureCategory } from '../types';
+import { calculateCustomsCosts } from '../utils/customsCalculator';
+
+// Helper function to calculate updated customs costs
+const getUpdatedCustomsCosts = (carPrice: number, engineSize: number, fuelType: FuelType) => {
+  return calculateCustomsCosts({
+    carPrice,
+    engineSize,
+    fuelType,
+    carAge: 0,
+    category: CarCategory.SEDAN
+  });
+};
 
 export const carModels: CarModel[] = [
   // Toyota Models
@@ -31,7 +43,7 @@ export const carModels: CarModel[] = [
           priceRange: { min: 24000, max: 26000 },
           marketPrice: 25500,
           dealerPrice: 25200,
-          lastUpdated: '2025-01-01'
+          lastUpdated: '2025-08-06'
         },
         availability: 'available'
       },
@@ -55,7 +67,7 @@ export const carModels: CarModel[] = [
           priceRange: { min: 28000, max: 30000 },
           marketPrice: 29500,
           dealerPrice: 29200,
-          lastUpdated: '2025-01-01'
+          lastUpdated: '2025-08-06'
         },
         availability: 'available'
       }
@@ -147,21 +159,24 @@ export const carModels: CarModel[] = [
         fair: 19000,
         poor: 17000
       },
-      lastUpdated: '2025-01-01'
+      lastUpdated: '2025-08-06'
     },
-    customsCosts: {
-      importDuty: 6750, // 27% of $25,000
-      importDutyPercentage: 27,
-      salesTax: 4320, // 16% of ($25,000 + $6,750)
-      salesTaxPercentage: 16,
-      specialTax: 2500, // 10% على السيارات فوق 2.0L
-      specialTaxPercentage: 10,
-      environmentalFee: 300,
-      clearanceFees: 500,
-      inspectionFees: 200,
-      totalCustomsCost: 14570,
-      lastUpdated: '2025-01-01'
-    },
+    customsCosts: (() => {
+      const costs = getUpdatedCustomsCosts(25000, 2.5, FuelType.GASOLINE);
+      return {
+        importDuty: costs.importDuty,
+        importDutyPercentage: costs.importDutyRate * 100,
+        salesTax: costs.salesTax,
+        salesTaxPercentage: costs.salesTaxRate * 100,
+        specialTax: costs.specialTax,
+        specialTaxPercentage: costs.specialTaxRate * 100,
+        environmentalFee: costs.environmentalFee,
+        clearanceFees: costs.clearanceFees,
+        inspectionFees: costs.inspectionFees,
+        totalCustomsCost: costs.totalCustomsCost,
+        lastUpdated: '2025-08-06'
+      };
+    })(),
     insuranceCosts: {
       compulsoryInsurance: 280,
       comprehensiveInsurance: {
@@ -268,7 +283,7 @@ export const carModels: CarModel[] = [
     ]
   },
 
-  // Honda Civic
+  // Honda Civic - Updated with new customs calculation
   {
     id: 'honda-civic-2024',
     brandId: 'honda',
@@ -298,7 +313,7 @@ export const carModels: CarModel[] = [
           priceRange: { min: 22500, max: 24000 },
           marketPrice: 23500,
           dealerPrice: 23200,
-          lastUpdated: '2025-01-01'
+          lastUpdated: '2025-08-06'
         },
         availability: 'available'
       }
@@ -376,21 +391,24 @@ export const carModels: CarModel[] = [
         fair: 17000,
         poor: 15000
       },
-      lastUpdated: '2025-01-01'
+      lastUpdated: '2025-08-06'
     },
-    customsCosts: {
-      importDuty: 6210, // 27% of $23,000
-      importDutyPercentage: 27,
-      salesTax: 4674, // 16% of ($23,000 + $6,210)
-      salesTaxPercentage: 16,
-      specialTax: 0, // No special tax for 2.0L and below
-      specialTaxPercentage: 0,
-      environmentalFee: 200,
-      clearanceFees: 500,
-      inspectionFees: 200,
-      totalCustomsCost: 11784,
-      lastUpdated: '2025-01-01'
-    },
+    customsCosts: (() => {
+      const costs = getUpdatedCustomsCosts(23000, 2.0, FuelType.GASOLINE);
+      return {
+        importDuty: costs.importDuty,
+        importDutyPercentage: costs.importDutyRate * 100,
+        salesTax: costs.salesTax,
+        salesTaxPercentage: costs.salesTaxRate * 100,
+        specialTax: costs.specialTax,
+        specialTaxPercentage: costs.specialTaxRate * 100,
+        environmentalFee: costs.environmentalFee,
+        clearanceFees: costs.clearanceFees,
+        inspectionFees: costs.inspectionFees,
+        totalCustomsCost: costs.totalCustomsCost,
+        lastUpdated: '2025-08-06'
+      };
+    })(),
     insuranceCosts: {
       compulsoryInsurance: 250,
       comprehensiveInsurance: {
@@ -449,7 +467,7 @@ export const carModels: CarModel[] = [
     reviews: []
   },
 
-  // BYD Atto 3 (Electric)
+  // BYD Atto 3 (Electric) - Updated with new electric vehicle rates
   {
     id: 'byd-atto3-2024',
     brandId: 'byd',
@@ -479,7 +497,7 @@ export const carModels: CarModel[] = [
           priceRange: { min: 34000, max: 36000 },
           marketPrice: 35500,
           dealerPrice: 35200,
-          lastUpdated: '2025-01-01'
+          lastUpdated: '2025-08-06'
         },
         availability: 'available'
       }
@@ -557,21 +575,24 @@ export const carModels: CarModel[] = [
         fair: 26000,
         poor: 23000
       },
-      lastUpdated: '2025-01-01'
+      lastUpdated: '2025-08-06'
     },
-    customsCosts: {
-      importDuty: 9450, // 27% of $35,000
-      importDutyPercentage: 27,
-      salesTax: 7112, // 16% of ($35,000 + $9,450)
-      salesTaxPercentage: 16,
-      specialTax: 0, // Electric vehicles exempt from special tax
-      specialTaxPercentage: 0,
-      environmentalFee: 0, // Electric vehicles exempt
-      clearanceFees: 500,
-      inspectionFees: 200,
-      totalCustomsCost: 17262,
-      lastUpdated: '2025-01-01'
-    },
+    customsCosts: (() => {
+      const costs = getUpdatedCustomsCosts(35000, 0, FuelType.ELECTRIC);
+      return {
+        importDuty: costs.importDuty,
+        importDutyPercentage: costs.importDutyRate * 100,
+        salesTax: costs.salesTax,
+        salesTaxPercentage: costs.salesTaxRate * 100,
+        specialTax: costs.specialTax,
+        specialTaxPercentage: costs.specialTaxRate * 100,
+        environmentalFee: costs.environmentalFee,
+        clearanceFees: costs.clearanceFees,
+        inspectionFees: costs.inspectionFees,
+        totalCustomsCost: costs.totalCustomsCost,
+        lastUpdated: '2025-08-06'
+      };
+    })(),
     insuranceCosts: {
       compulsoryInsurance: 320,
       comprehensiveInsurance: {
@@ -643,12 +664,12 @@ export const carModels: CarModel[] = [
         userId: 'user-2',
         userName: 'سارة أحمد',
         rating: 4.2,
-        title: 'Great electric SUV',
-        titleAr: 'سيارة كهربائية رائعة',
-        content: 'Impressive range and features for the price',
-        contentAr: 'مدى مثير للإعجاب وميزات ممتازة للسعر',
-        pros: ['Long range', 'Fast charging', 'Spacious interior'],
-        prosAr: ['مدى طويل', 'شحن سريع', 'مقصورة واسعة'],
+        title: 'Great electric SUV with new tax benefits',
+        titleAr: 'سيارة كهربائية رائعة مع المزايا الضريبية الجديدة',
+        content: 'Impressive range and features for the price, plus the new unified 27% tax rate makes it more affordable',
+        contentAr: 'مدى مثير للإعجاب وميزات ممتازة للسعر، بالإضافة إلى معدل الضريبة الموحد الجديد 27% يجعلها أكثر بأسعار معقولة',
+        pros: ['Long range', 'Fast charging', 'Spacious interior', 'Lower taxes in 2025'],
+        prosAr: ['مدى طويل', 'شحن سريع', 'مقصورة واسعة', 'ضرائب أقل في 2025'],
         cons: ['Build quality', 'Road noise'],
         consAr: ['جودة التصنيع', 'ضوضاء الطريق'],
         verified: true,
@@ -660,7 +681,7 @@ export const carModels: CarModel[] = [
     ]
   },
 
-  // Ford Explorer
+  // Ford Explorer - Updated with new gasoline vehicle rates
   {
     id: 'ford-explorer-2024',
     brandId: 'ford',
@@ -690,7 +711,7 @@ export const carModels: CarModel[] = [
           priceRange: { min: 37000, max: 40000 },
           marketPrice: 39000,
           dealerPrice: 38500,
-          lastUpdated: '2025-01-01'
+          lastUpdated: '2025-08-06'
         },
         availability: 'available'
       }
@@ -768,21 +789,24 @@ export const carModels: CarModel[] = [
         fair: 29000,
         poor: 26000
       },
-      lastUpdated: '2025-01-01'
+      lastUpdated: '2025-08-06'
     },
-    customsCosts: {
-      importDuty: 10260, // 27% of $38,000
-      importDutyPercentage: 27,
-      salesTax: 7722, // 16% of ($38,000 + $10,260)
-      salesTaxPercentage: 16,
-      specialTax: 3800, // 10% على السيارات فوق 2.0L
-      specialTaxPercentage: 10,
-      environmentalFee: 500,
-      clearanceFees: 600,
-      inspectionFees: 300,
-      totalCustomsCost: 23182,
-      lastUpdated: '2025-01-01'
-    },
+    customsCosts: (() => {
+      const costs = getUpdatedCustomsCosts(38000, 2.3, FuelType.GASOLINE);
+      return {
+        importDuty: costs.importDuty,
+        importDutyPercentage: costs.importDutyRate * 100,
+        salesTax: costs.salesTax,
+        salesTaxPercentage: costs.salesTaxRate * 100,
+        specialTax: costs.specialTax,
+        specialTaxPercentage: costs.specialTaxRate * 100,
+        environmentalFee: costs.environmentalFee,
+        clearanceFees: costs.clearanceFees,
+        inspectionFees: costs.inspectionFees,
+        totalCustomsCost: costs.totalCustomsCost,
+        lastUpdated: '2025-08-06'
+      };
+    })(),
     insuranceCosts: {
       compulsoryInsurance: 380,
       comprehensiveInsurance: {
@@ -852,7 +876,7 @@ export const carModels: CarModel[] = [
   }
 ];
 
-// Helper function to calculate total car cost including customs
+// Helper function to calculate total car cost including updated customs
 export const calculateTotalCost = (carModel: CarModel, variantId?: string) => {
   const variant = variantId ? 
     carModel.variants.find(v => v.id === variantId) : 
@@ -868,6 +892,37 @@ export const calculateTotalCost = (carModel: CarModel, variantId?: string) => {
     basePrice,
     customsCost,
     totalCost,
-    totalCostJOD: Math.round(totalCost * 0.71) // Approximate USD to JOD conversion
+    totalCostJOD: Math.round(totalCost * 0.71), // USD to JOD conversion
+    savingsFrom2024: calculateSavings(variant.fuelType, totalCost) // Calculate savings from old rates
   };
 };
+
+// Calculate savings from 2024 rates
+function calculateSavings(fuelType: FuelType, newTotalCost: number): number {
+  let oldTaxRate = 0;
+  let newTaxRate = 0;
+  
+  switch (fuelType) {
+    case FuelType.GASOLINE:
+    case FuelType.DIESEL:
+      oldTaxRate = 0.71; // 71%
+      newTaxRate = 0.51; // 51%
+      break;
+    case FuelType.HYBRID:
+    case FuelType.PLUGIN_HYBRID:
+      oldTaxRate = 0.60; // 60%
+      newTaxRate = 0.39; // 39%
+      break;
+    case FuelType.ELECTRIC:
+      oldTaxRate = 0.55; // Up to 55% (average)
+      newTaxRate = 0.27; // 27%
+      break;
+    default:
+      return 0;
+  }
+  
+  const basePrice = newTotalCost / (1 + newTaxRate);
+  const oldTotalCost = basePrice * (1 + oldTaxRate);
+  
+  return Math.round(oldTotalCost - newTotalCost);
+}

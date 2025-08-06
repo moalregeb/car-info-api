@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { 
-  FiSearch, 
-  FiTrendingUp, 
-  FiAward, 
-  FiShield, 
-  FiDollarSign, 
-  FiUsers,
+import {
+  FiSearch,
   FiArrowRight,
   FiStar,
   FiEye,
@@ -16,8 +11,8 @@ import {
   FiTrendingDown
 } from 'react-icons/fi';
 import { carBrands } from '../data/carBrands';
-import { carModels } from '../data/carModels';
-import { CarCategory, BodyType, FuelType } from '../types';
+import { carModels, calculateTotalCost } from '../data/carModels';
+import { CarCategory, FuelType } from '../types';
 
 const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,16 +21,24 @@ const HomePage: React.FC = () => {
   const [selectedFuelType, setSelectedFuelType] = useState<FuelType | ''>('');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
-  // Featured cars (first 3 from our data)
-  const featuredCars = carModels.slice(0, 3);
+  // Pre-calculate expensive operations with useMemo
+  const featuredCars = useMemo(() => carModels.slice(0, 6), []);
+  
+  const carCostsCache = useMemo(() => {
+    const cache = new Map();
+    featuredCars.forEach(car => {
+      cache.set(car.id, calculateTotalCost(car));
+    });
+    return cache;
+  }, [featuredCars]);
 
-  // Statistics
-  const stats = [
-    { icon: FiUsers, value: '15,000+', label: 'عميل راضٍ', color: 'text-blue-500' },
-    { icon: FiAward, value: '500+', label: 'سيارة متاحة', color: 'text-green-500' },
-    { icon: FiShield, value: '100%', label: 'ضمان الجودة', color: 'text-purple-500' },
-    { icon: FiTrendingUp, value: '98%', label: 'معدل الرضا', color: 'text-quartz-500' },
-  ];
+  // Memoized statistics
+  const stats = useMemo(() => [
+    { icon: FiSearch, value: '37+', label: 'علامة تجارية', color: 'text-quartz-500' },
+    { icon: FiEye, value: '500+', label: 'موديل سيارة', color: 'text-blue-500' },
+    { icon: FiHeart, value: '24/7', label: 'دعم فني', color: 'text-green-500' },
+    { icon: FiStar, value: '5★', label: 'تقييم العملاء', color: 'text-yellow-500' }
+  ], []);
 
   const features = [
     {
@@ -313,8 +316,8 @@ const HomePage: React.FC = () => {
                     
                     {/* New Savings Badge */}
                     {(() => {
-                      const totalCost = calculateTotalCost(car);
-                      if (totalCost.savingsFrom2024 > 0) {
+                      const totalCost = carCostsCache.get(car.id);
+                      if (totalCost && totalCost.savingsFrom2024 > 0) {
                         return (
                           <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                             وفر ${totalCost.savingsFrom2024.toLocaleString()}
@@ -380,12 +383,8 @@ const HomePage: React.FC = () => {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-green-700">معدل الضريبة الجديد 2025:</span>
                           <span className="font-bold text-green-800">
-                            {(() => {
-                              const variant = car.variants[0];
-                              if (variant.fuelType === FuelType.ELECTRIC) return '27%';
-                              if (variant.fuelType === FuelType.HYBRID) return '39%';
-                              return '51%';
-                            })()}
+                            {car.variants[0].fuelType === FuelType.ELECTRIC ? '27%' : 
+                             car.variants[0].fuelType === FuelType.HYBRID ? '39%' : '51%'}
                           </span>
                         </div>
                         <div className="text-xs text-green-600 mt-1">

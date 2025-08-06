@@ -1,5 +1,8 @@
 import { FuelType, CarCategory } from '../types';
 
+// Cache for expensive calculations
+const calculationCache = new Map<string, CustomsBreakdown>();
+
 // Jordan Customs and Tax Rates 2025 - Based on Official Government Sources
 export interface CustomsCalculationParams {
   carPrice: number; // USD
@@ -77,7 +80,19 @@ const CUSTOMS_RATES = {
 const JOD_TO_USD = 1.408;
 const USD_TO_JOD = 0.71;
 
+// Generate cache key for calculations
+function getCacheKey(params: CustomsCalculationParams): string {
+  return `${params.carPrice}-${params.engineSize}-${params.fuelType}-${params.carAge}-${params.category}`;
+}
+
 export function calculateCustomsCosts(params: CustomsCalculationParams): CustomsBreakdown {
+  // Check cache first
+  const cacheKey = getCacheKey(params);
+  const cached = calculationCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const {
     carPrice,
     engineSize,
@@ -98,28 +113,28 @@ export function calculateCustomsCosts(params: CustomsCalculationParams): Customs
   let weightTax = 0;
 
   // Import Duty - Standard 27% for all vehicles
-  importDuty = carPrice * CUSTOMS_RATES.IMPORT_DUTY_RATE;
+  importDuty = Math.round(carPrice * CUSTOMS_RATES.IMPORT_DUTY_RATE);
   importDutyRate = CUSTOMS_RATES.IMPORT_DUTY_RATE;
 
   // Sales Tax - 16% on (car price + import duty)
   const taxableAmount = carPrice + importDuty;
-  salesTax = taxableAmount * CUSTOMS_RATES.SALES_TAX_RATE;
+  salesTax = Math.round(taxableAmount * CUSTOMS_RATES.SALES_TAX_RATE);
   salesTaxRate = CUSTOMS_RATES.SALES_TAX_RATE;
 
   // Special Tax and Environmental Fee based on vehicle type
   if (isElectric) {
     // Electric vehicles: Fixed 27% total tax rate
     const totalTaxAmount = carPrice * CUSTOMS_RATES.ELECTRIC_CARS.TOTAL_TAX_RATE;
-    specialTax = totalTaxAmount - importDuty - salesTax;
+    specialTax = Math.max(0, Math.round(totalTaxAmount - importDuty - salesTax));
     specialTaxRate = specialTax > 0 ? specialTax / carPrice : 0;
     environmentalFee = CUSTOMS_RATES.ENVIRONMENTAL_FEE.ELECTRIC;
     
     // Electric cars: 4% of car value instead of weight tax (as per 2020 decision)
-    weightTax = carPrice * 0.04;
+    weightTax = Math.round(carPrice * 0.04);
   } else if (isHybrid) {
     // Hybrid vehicles: 39% total tax rate (reduced from 60%)
     const totalTaxAmount = carPrice * CUSTOMS_RATES.HYBRID_CARS.TOTAL_TAX_RATE;
-    specialTax = Math.max(0, totalTaxAmount - importDuty - salesTax);
+    specialTax = Math.max(0, Math.round(totalTaxAmount - importDuty - salesTax));
     specialTaxRate = specialTax > 0 ? specialTax / carPrice : 0;
     environmentalFee = CUSTOMS_RATES.ENVIRONMENTAL_FEE.HYBRID;
     
@@ -128,7 +143,7 @@ export function calculateCustomsCosts(params: CustomsCalculationParams): Customs
   } else {
     // Gasoline/Diesel vehicles: 51% total tax rate (reduced from 71%)
     const totalTaxAmount = carPrice * CUSTOMS_RATES.GASOLINE_CARS.TOTAL_TAX_RATE;
-    specialTax = Math.max(0, totalTaxAmount - importDuty - salesTax);
+    specialTax = Math.max(0, Math.round(totalTaxAmount - importDuty - salesTax));
     specialTaxRate = specialTax > 0 ? specialTax / carPrice : 0;
     
     // Environmental fee based on engine size
@@ -149,24 +164,35 @@ export function calculateCustomsCosts(params: CustomsCalculationParams): Customs
   
   // Total cost
   const totalCostUSD = carPrice + totalCustomsCost;
-  const totalCostJOD = totalCostUSD * USD_TO_JOD;
+  const totalCostJOD = Math.round(totalCostUSD * USD_TO_JOD);
 
-  return {
-    importDuty: Math.round(importDuty),
+  const result: CustomsBreakdown = {
+    importDuty,
     importDutyRate,
-    salesTax: Math.round(salesTax),
+    salesTax,
     salesTaxRate,
-    specialTax: Math.round(specialTax),
+    specialTax,
     specialTaxRate,
     environmentalFee,
     clearanceFees,
     inspectionFees,
-    weightTax: Math.round(weightTax),
-    totalCustomsCost: Math.round(totalCustomsCost),
-    totalCostUSD: Math.round(totalCostUSD),
-    totalCostJOD: Math.round(totalCostJOD),
+    weightTax,
+    totalCustomsCost,
+    totalCostUSD,
+    totalCostJOD,
     lastUpdated: '2025-08-06'
   };
+
+  // Cache the result
+  calculationCache.set(cacheKey, result);
+  
+  // Limit cache size to prevent memory issues
+  if (calculationCache.size > 1000) {
+    const firstKey = calculationCache.keys().next().value;
+    calculationCache.delete(firstKey);
+  }
+
+  return result;
 }
 
 function calculateWeightTax(engineSize: number): number {
@@ -175,9 +201,9 @@ function calculateWeightTax(engineSize: number): number {
   if (engineSize <= 1.6) {
     return CUSTOMS_RATES.WEIGHT_TAX.MIN; // ~500 JOD
   } else if (engineSize <= 2.5) {
-    return CUSTOMS_RATES.WEIGHT_TAX.MIN + 
+    return Math.round(CUSTOMS_RATES.WEIGHT_TAX.MIN + 
            ((engineSize - 1.6) / 0.9) * 
-           (CUSTOMS_RATES.WEIGHT_TAX.MAX - CUSTOMS_RATES.WEIGHT_TAX.MIN) * 0.5;
+           (CUSTOMS_RATES.WEIGHT_TAX.MAX - CUSTOMS_RATES.WEIGHT_TAX.MIN) * 0.5);
   } else {
     return CUSTOMS_RATES.WEIGHT_TAX.MAX; // ~1500 JOD
   }
@@ -231,4 +257,9 @@ export function getTaxReductionInfo(fuelType: FuelType) {
     default:
       return null;
   }
+}
+
+// Clear cache (useful for testing or memory management)
+export function clearCalculationCache(): void {
+  calculationCache.clear();
 }

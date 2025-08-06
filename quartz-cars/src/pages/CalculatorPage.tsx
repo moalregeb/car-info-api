@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { FiCalculator, FiDollarSign, FiInfo, FiTrendingDown, FiCheckCircle } from 'react-icons/fi';
 import { FuelType, CarCategory } from '../types';
@@ -11,16 +11,32 @@ const CalculatorPage: React.FC = () => {
   const [fuelType, setFuelType] = useState<FuelType>(FuelType.GASOLINE);
   const [category, setCategory] = useState<CarCategory>(CarCategory.SEDAN);
   
-  const params: CustomsCalculationParams = {
+  // Memoize expensive calculations
+  const params: CustomsCalculationParams = useMemo(() => ({
     carPrice,
     engineSize,
     fuelType,
     carAge,
     category
-  };
+  }), [carPrice, engineSize, fuelType, carAge, category]);
   
-  const costs = calculateCustomsCosts(params);
-  const taxReduction = getTaxReductionInfo(fuelType);
+  const costs = useMemo(() => calculateCustomsCosts(params), [params]);
+  const taxReduction = useMemo(() => getTaxReductionInfo(fuelType), [fuelType]);
+
+  // Memoize engine options to prevent re-renders
+  const engineOptions = useMemo(() => [
+    { value: 1.0, label: '1.0 لتر' },
+    { value: 1.2, label: '1.2 لتر' },
+    { value: 1.4, label: '1.4 لتر' },
+    { value: 1.6, label: '1.6 لتر' },
+    { value: 1.8, label: '1.8 لتر' },
+    { value: 2.0, label: '2.0 لتر' },
+    { value: 2.4, label: '2.4 لتر' },
+    { value: 2.5, label: '2.5 لتر' },
+    { value: 3.0, label: '3.0 لتر' },
+    { value: 3.5, label: '3.5 لتر' },
+    { value: 4.0, label: '4.0 لتر' }
+  ], []);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -60,7 +76,7 @@ const CalculatorPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Input Form */}
+            {/* Input Form - Optimized */}
             <motion.div
               className="bg-white rounded-2xl shadow-lg p-6"
               initial={{ opacity: 0, x: -20 }}
@@ -83,6 +99,9 @@ const CalculatorPage: React.FC = () => {
                     onChange={(e) => setCarPrice(Number(e.target.value))}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quartz-500 focus:border-transparent"
                     placeholder="25000"
+                    min="1000"
+                    max="200000"
+                    step="1000"
                   />
                 </div>
 
@@ -112,17 +131,11 @@ const CalculatorPage: React.FC = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-quartz-500 focus:border-transparent"
                     disabled={fuelType === FuelType.ELECTRIC}
                   >
-                    <option value={1.0}>1.0 لتر</option>
-                    <option value={1.2}>1.2 لتر</option>
-                    <option value={1.4}>1.4 لتر</option>
-                    <option value={1.6}>1.6 لتر</option>
-                    <option value={1.8}>1.8 لتر</option>
-                    <option value={2.0}>2.0 لتر</option>
-                    <option value={2.4}>2.4 لتر</option>
-                    <option value={2.5}>2.5 لتر</option>
-                    <option value={3.0}>3.0 لتر</option>
-                    <option value={3.5}>3.5 لتر</option>
-                    <option value={4.0}>4.0 لتر</option>
+                    {engineOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                   {fuelType === FuelType.ELECTRIC && (
                     <p className="text-sm text-gray-500 mt-1">لا ينطبق على السيارات الكهربائية</p>
@@ -164,18 +177,16 @@ const CalculatorPage: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Updated Information Box */}
+                {/* Quick calculation tips */}
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="flex items-start">
-                    <FiInfo className="w-5 h-5 text-blue-500 mt-0.5 ml-2" />
+                    <FiInfo className="w-5 h-5 text-blue-500 mt-0.5 ml-2 flex-shrink-0" />
                     <div className="text-sm text-blue-700">
-                      <p className="font-medium mb-1">التحديثات الجديدة لعام 2025:</p>
+                      <p className="font-medium mb-1">💡 نصائح سريعة:</p>
                       <ul className="space-y-1 text-xs">
-                        <li>• تخفيض الضرائب على السيارات العادية من 71% إلى 51%</li>
-                        <li>• تخفيض الضرائب على الهايبرد من 60% إلى 39%</li>
-                        <li>• ضريبة موحدة 27% للسيارات الكهربائية</li>
-                        <li>• رسوم الجمرك: 27% من قيمة السيارة</li>
-                        <li>• ضريبة المبيعات: 16% من (السعر + الجمرك)</li>
+                        <li>• السيارات الكهربائية: ضريبة موحدة 27%</li>
+                        <li>• الهايبرد: توفير 35% عن المعدلات السابقة</li>
+                        <li>• العادية: توفير 28% عن المعدلات السابقة</li>
                       </ul>
                     </div>
                   </div>
@@ -183,7 +194,7 @@ const CalculatorPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Results */}
+            {/* Results - Optimized with better layout */}
             <motion.div
               className="bg-white rounded-2xl shadow-lg p-6"
               initial={{ opacity: 0, x: 20 }}
@@ -192,74 +203,74 @@ const CalculatorPage: React.FC = () => {
             >
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                 <FiDollarSign className="w-6 h-6 ml-2" />
-                تفصيل التكاليف المحدث
+                النتائج المحدثة
               </h2>
 
               <div className="space-y-4">
                 <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">سعر السيارة الأساسي:</span>
-                  <span className="font-medium">${carPrice.toLocaleString()}</span>
+                  <span className="text-gray-600">سعر السيارة:</span>
+                  <span className="font-bold text-lg">${carPrice.toLocaleString()}</span>
                 </div>
 
                 <div className="space-y-3 py-4 bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-medium text-gray-900">رسوم الجمرك والضرائب:</h3>
+                  <h3 className="font-medium text-gray-900 mb-3">💰 تفصيل الرسوم:</h3>
                   
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">رسوم الجمرك ({(costs.importDutyRate * 100).toFixed(0)}%):</span>
-                    <span>${costs.importDuty.toLocaleString()}</span>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">ضريبة المبيعات ({(costs.salesTaxRate * 100).toFixed(0)}%):</span>
-                    <span>${costs.salesTax.toLocaleString()}</span>
-                  </div>
-                  
-                  {costs.specialTax > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">الضريبة الخاصة ({(costs.specialTaxRate * 100).toFixed(1)}%):</span>
-                      <span>${costs.specialTax.toLocaleString()}</span>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">جمرك:</span>
+                      <span className="font-medium">${costs.importDuty.toLocaleString()}</span>
                     </div>
-                  )}
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">رسوم بيئية:</span>
-                    <span>${costs.environmentalFee}</span>
-                  </div>
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">مبيعات:</span>
+                      <span className="font-medium">${costs.salesTax.toLocaleString()}</span>
+                    </div>
+                    
+                    {costs.specialTax > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">خاصة:</span>
+                        <span className="font-medium">${costs.specialTax.toLocaleString()}</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">بيئية:</span>
+                      <span className="font-medium">${costs.environmentalFee}</span>
+                    </div>
 
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">رسوم الوزن/القيمة:</span>
-                    <span>${costs.weightTax.toLocaleString()}</span>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">وزن:</span>
+                      <span className="font-medium">${costs.weightTax.toLocaleString()}</span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">رسوم:</span>
+                      <span className="font-medium">${costs.clearanceFees + costs.inspectionFees}</span>
+                    </div>
                   </div>
                   
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">رسوم التخليص:</span>
-                    <span>${costs.clearanceFees}</span>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">رسوم الفحص:</span>
-                    <span>${costs.inspectionFees}</span>
-                  </div>
-                  
-                  <div className="flex justify-between font-medium pt-2 border-t border-gray-200">
+                  <div className="flex justify-between font-bold text-lg pt-3 border-t border-gray-200">
                     <span>إجمالي الرسوم:</span>
                     <span className="text-red-600">${costs.totalCustomsCost.toLocaleString()}</span>
                   </div>
                 </div>
 
+                {/* Final Results */}
                 <div className="bg-gradient-to-r from-quartz-50 to-quartz-100 rounded-lg p-6">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-lg font-bold text-gray-900">التكلفة الإجمالية:</span>
-                    <span className="text-2xl font-bold text-quartz-600">
-                      ${costs.totalCostUSD.toLocaleString()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-bold text-gray-900">بالدينار الأردني:</span>
-                    <span className="text-2xl font-bold text-green-600">
-                      {costs.totalCostJOD.toLocaleString()} د.أ
-                    </span>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-quartz-600 mb-1">
+                        ${costs.totalCostUSD.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-600">إجمالي بالدولار</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600 mb-1">
+                        {costs.totalCostJOD.toLocaleString()} د.أ
+                      </div>
+                      <div className="text-sm text-gray-600">إجمالي بالدينار</div>
+                    </div>
                   </div>
 
                   {/* Tax Savings Display */}
@@ -267,78 +278,44 @@ const CalculatorPage: React.FC = () => {
                     <div className="bg-green-100 rounded-lg p-4 mb-4">
                       <div className="flex items-center mb-2">
                         <FiCheckCircle className="w-5 h-5 text-green-600 ml-2" />
-                        <span className="font-medium text-green-800">توفير بالتخفيضات الجديدة</span>
+                        <span className="font-medium text-green-800">🎉 توفير 2025</span>
                       </div>
-                      <div className="text-sm text-green-700">
-                        <p>• معدل الضريبة السابق: {taxReduction.oldRate}</p>
-                        <p>• معدل الضريبة الجديد: {taxReduction.newRate}</p>
-                        <p>• نسبة التوفير: {taxReduction.reduction}</p>
+                      <div className="text-sm text-green-700 grid grid-cols-2 gap-2">
+                        <div>سابقاً: {taxReduction.oldRate}</div>
+                        <div>حالياً: {taxReduction.newRate}</div>
                       </div>
                     </div>
                   )}
                   
-                  <div className="text-sm text-gray-600">
-                    <p>* سعر الصرف المستخدم: 1 USD = 0.71 JOD</p>
-                    <p>* الأسعار محدثة حسب القرارات الحكومية الجديدة</p>
-                    <p>* آخر تحديث: {costs.lastUpdated}</p>
+                  <div className="text-xs text-gray-600 text-center">
+                    <p>💱 سعر الصرف: 1 USD = 0.71 JOD</p>
+                    <p>📅 آخر تحديث: {costs.lastUpdated}</p>
                   </div>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Additional Information */}
+          {/* Quick Info Cards */}
           <motion.div
-            className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">التأمين الإجباري</h3>
-              <div className="space-y-2 text-sm">
-                <p className="text-gray-600">• التأمين الإجباري: 200-400 د.أ سنوياً</p>
-                <p className="text-gray-600">• التأمين الشامل: 800-2000 د.أ سنوياً</p>
-                <p className="text-gray-600">• يعتمد على قيمة السيارة وعمر السائق</p>
-              </div>
+            <div className="bg-white rounded-xl shadow-md p-4 text-center">
+              <h3 className="font-bold text-gray-900 mb-2">🚗 تأمين إجباري</h3>
+              <p className="text-sm text-gray-600">200-400 د.أ سنوياً</p>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">رسوم إضافية</h3>
-              <div className="space-y-2 text-sm">
-                <p className="text-gray-600">• رسوم الترخيص: 200-500 د.أ</p>
-                <p className="text-gray-600">• فحص السيارة: 50-100 د.أ</p>
-                <p className="text-gray-600">• رسوم النقل والشحن: حسب الموقع</p>
-              </div>
+            <div className="bg-white rounded-xl shadow-md p-4 text-center">
+              <h3 className="font-bold text-gray-900 mb-2">📋 ترخيص</h3>
+              <p className="text-sm text-gray-600">200-500 د.أ</p>
             </div>
-          </motion.div>
-
-          {/* Government Sources */}
-          <motion.div
-            className="mt-8 bg-white rounded-2xl shadow-lg p-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <h3 className="text-lg font-bold text-gray-900 mb-4">المصادر الرسمية</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">قرار مجلس الوزراء - 28 يونيو 2025:</h4>
-                <ul className="space-y-1 text-gray-600">
-                  <li>• تخفيض الضرائب على السيارات العادية بنسبة 28%</li>
-                  <li>• تخفيض الضرائب على الهايبرد بنسبة 35%</li>
-                  <li>• توحيد ضريبة السيارات الكهربائية عند 27%</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">المواقع الرسمية:</h4>
-                <ul className="space-y-1 text-gray-600">
-                  <li>• دائرة الجمارك الأردنية: customs.gov.jo</li>
-                  <li>• دائرة ضريبة الدخل والمبيعات: istd.gov.jo</li>
-                  <li>• وزارة المالية: mof.gov.jo</li>
-                </ul>
-              </div>
+            
+            <div className="bg-white rounded-xl shadow-md p-4 text-center">
+              <h3 className="font-bold text-gray-900 mb-2">🔧 فحص</h3>
+              <p className="text-sm text-gray-600">50-100 د.أ</p>
             </div>
           </motion.div>
         </motion.div>

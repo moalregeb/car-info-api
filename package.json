@@ -1,13 +1,18 @@
 
 {
-  "name": "car-info-api",
+  "name": "car-customs-calculator",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server.js",
+    "client": "cd react-frontend && npm start",
+    "build": "cd react-frontend && npm run build"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "concurrently": "^8.2.2"
   }
 }

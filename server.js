@@ -1,11 +1,70 @@
 
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const app = express();
 const port = 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// المسارات
+app.get("/api/categories", (req, res) => {
+  res.json(categories);
+});
+
+app.get("/api/brands", (req, res) => {
+  const { category_id } = req.query;
+  const filtered = brands.filter((b) => b.category_id == category_id);
+  res.json(filtered);
+});
+
+app.get("/api/models", (req, res) => {
+  const { brand_id } = req.query;
+  const filtered = models.filter((m) => m.brand_id == brand_id);
+  res.json(filtered);
+});
+
+app.get("/api/vehicle-info", (req, res) => {
+  const { model_id } = req.query;
+  const info = carDetails[model_id];
+  if (!info) return res.status(404).json({ error: "الموديل غير موجود" });
+  res.json(info);
+});
+
+// مسار لحساب الرسوم الجمركية
+app.post("/api/calculate-customs", (req, res) => {
+  const { model_id, declared_value } = req.body;
+  const info = carDetails[model_id];
+  
+  if (!info) {
+    return res.status(404).json({ error: "الموديل غير موجود" });
+  }
+
+  const duty_amount = (declared_value * info.customs.duty_rate) / 100;
+  const special_tax_amount = (declared_value * info.customs.special_tax) / 100;
+  const vat_amount = ((declared_value + duty_amount + special_tax_amount) * info.customs.vat_rate) / 100;
+  const total_amount = duty_amount + special_tax_amount + vat_amount;
+  const final_price = declared_value + total_amount;
+
+  res.json({
+    declared_value,
+    duty_amount,
+    special_tax_amount,
+    vat_amount,
+    total_amount,
+    final_price,
+    rates: info.customs
+  });
+});
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, 'react-frontend/build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'react-frontend/build', 'index.html'));
+});
 
 // بيانات وهمية محدثة
 const categories = [

@@ -63,6 +63,8 @@ cd react-frontend && npm install && cd ..
 
 # تشغيل التطبيق
 npm run dev
+
+# الوصول للتطبيق: http://localhost:3001
 ```
 
 ### النقاط النهائية API الرئيسية

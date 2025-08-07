@@ -18,8 +18,8 @@ COPY . .
 # Build React app
 RUN cd react-frontend && npm run build
 
-# Expose ports
-EXPOSE 3001 3000
+# Expose port
+EXPOSE 3001
 
 # Start the application
 CMD ["npm", "run", "dev"]

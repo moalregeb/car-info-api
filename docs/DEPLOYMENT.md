@@ -32,7 +32,7 @@ npm run dev
 ```
 
 4. **Access the application:**
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:3001
 - Backend API: http://localhost:3001
 
 ### Environment Variables
@@ -87,7 +87,7 @@ docker build -t customs-calculator .
 
 2. **Run the container:**
 ```bash
-docker run -p 3000:3000 -p 3001:3001 customs-calculator
+docker run -p 3001:3001 customs-calculator
 ```
 
 ## Production Deployment
@@ -145,7 +145,7 @@ server {
 
     # Frontend
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

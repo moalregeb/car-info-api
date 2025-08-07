@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Car, 
-  Cube, 
+  Box, 
   RotateCcw, 
   ZoomIn, 
   Download,
@@ -117,7 +117,7 @@ const ThreeDModels = () => {
           >
             <div className="glass p-6 rounded-2xl shadow-lg">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                <Cube className="w-6 h-6 text-primary-color" />
+                <Box className="w-6 h-6 text-primary-color" />
                 النماذج المتاحة
               </h2>
               
@@ -175,7 +175,7 @@ const ThreeDModels = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Cube className="w-5 h-5" />
+                    <Box className="w-5 h-5" />
                   </motion.button>
                   <motion.button
                     onClick={() => handleViewModeChange('360')}
@@ -198,7 +198,7 @@ const ThreeDModels = () => {
                   <div className="aspect-video bg-gradient-to-br from-surface to-surface-light rounded-xl flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary-color/20 to-secondary-color/20" />
                     <div className="relative z-10 text-center">
-                      <Cube className="w-16 h-16 mx-auto mb-4 text-primary-color" />
+                      <Box className="w-16 h-16 mx-auto mb-4 text-primary-color" />
                       <h3 className="text-xl font-bold mb-2">{selectedModel.name}</h3>
                       <p className="text-text-secondary mb-4">عرض ثلاثي الأبعاد تفاعلي</p>
                       <div className="flex gap-2 justify-center">
@@ -285,7 +285,7 @@ const ThreeDModels = () => {
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-surface to-surface-light rounded-xl flex items-center justify-center">
                   <div className="text-center">
-                    <Cube className="w-16 h-16 mx-auto mb-4 text-text-muted" />
+                    <Box className="w-16 h-16 mx-auto mb-4 text-text-muted" />
                     <h3 className="text-xl font-bold mb-2">اختر نموذجاً</h3>
                     <p className="text-text-secondary">اختر سيارة من القائمة لعرضها ثلاثي الأبعاد</p>
                   </div>
